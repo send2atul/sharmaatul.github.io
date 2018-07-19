@@ -1,28 +1,39 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Hank Quinlan, Horrible Cop</title>
+		<title>Sharma Atul D3</title>
+		<script src="https://d3js.org/d3.v3.min.js"></script>
 	</head>
 	<body>
-		<nav>
-    		<ul>
-        		<li><a href="/">Home</a></li>
-	        	<li><a href="/about">About</a></li>
-        		<li><a href="/cv">CV</a></li>
-        		<li><a href="/blog">Blog</a></li>
-    		</ul>
-		</nav>
-		<div class="container">
-    		<div class="blurb">
-        		<h1>Hi there, I'm Hank Quinlan!</h1>
-				<p>I'm best known as the horrible cop from <em>A Touch of Evil</em> Don't trust me. <a href="/about">Read more about my life...</a></p>
-    		</div><!-- /.blurb -->
-		</div><!-- /.container -->
-		<footer>
-    		<ul>
-        		<li><a href="mailto:hankquinlanhub@gmail.com">email</a></li>
-        		<li><a href="https://github.com/hankquinlan">github.com/hankquinlan</a></li>
-			</ul>
-		</footer>
+			<script>
+	var dataArray=[20,40,50];
+	
+	var widthScale = d3.scaleLinear()
+						.domain([0, 60])
+						.range([0, 500])
+	
+	var axis = d3.svg.axis()
+				.scale(widthScale)
+	
+	var canvas=	d3.select("body")
+					.append("svg")
+					.attr("width",500)
+					.attr("height",500)
+					.attr("fill","yellow")
+					.append("g")
+					.attr("transform","translate(20,0)");
+					
+	var bars = canvas.selectAll("rect")
+					.data(dataArray)
+					.enter()
+						.append("rect")
+						.attr("width",function(d) {return d*10;})
+						.attr("height",50)
+						.attr("y",function(d,i) {return i*100;});
+						
+	canvas.append("g")
+		  .attr("transform","translate(0,400)");
+	
+	</script>
 	</body>
 </html>
