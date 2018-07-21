@@ -15,18 +15,18 @@
 
 	<script>
 		
-		var margin = {left:100 , right:100 , top:10 , bottom:10};
-		
-		var width = 600 - margin.left - margin.right
-		var height = 400 - margin.top - margin.bottom
-		
-		var svg = d3.select("body")
-					.append("svg")
-					.attr("width", width + margin.left + margin.right)
-        				.attr("height", height + margin.top + margin.bottom)
-					.append("g")
-					.attr("transform","translate("+ margin.left +", " + margin.top +") ");
-		
+		var margin = { left:80, right:20, top:50, bottom:100 };
+var height = 500 - margin.top - margin.bottom, 
+    width = 800 - margin.left - margin.right;
+
+var g = d3.select("body")
+    .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+        .attr("transform", "translate(" + margin.left + 
+            ", " + margin.top + ")");
+
 var time = 0;
 
 // Scales
@@ -41,27 +41,22 @@ var area = d3.scaleLinear()
     .range([25*Math.PI, 1500*Math.PI])
     .domain([2000, 1400000000]);
 var continentColor = d3.scaleOrdinal(d3.schemePastel1);
-		
-//Labels
-		
-		
+
 // Labels
-var xLabel = svg.append("text")
+var xLabel = g.append("text")
     .attr("y", height + 50)
     .attr("x", width / 2)
     .attr("font-size", "20px")
     .attr("text-anchor", "middle")
     .text("GDP Per Capita ($)");
-		
-var yLabel = svg.append("text")
+var yLabel = g.append("text")
     .attr("transform", "rotate(-90)")
     .attr("y", -40)
     .attr("x", -170)
     .attr("font-size", "20px")
     .attr("text-anchor", "middle")
-    .text("Life Expectancy (Years)");
-
-var timeLabel = svg.append("text")
+    .text("Life Expectancy (Years)")
+var timeLabel = g.append("text")
     .attr("y", height -10)
     .attr("x", width - 40)
     .attr("font-size", "40px")
@@ -73,26 +68,22 @@ var timeLabel = svg.append("text")
 var xAxisCall = d3.axisBottom(x)
     .tickValues([400, 4000, 40000])
     .tickFormat(d3.format("$"));
-svg.append("g")
-   .attr("class", "x axis")
+g.append("g")
+    .attr("class", "x axis")
     .attr("transform", "translate(0," + height +")")
     .call(xAxisCall);
 
-		
 // Y Axis
 var yAxisCall = d3.axisLeft(y)
     .tickFormat(function(d){ return +d; });
-svg.append("g")
+g.append("g")
     .attr("class", "y axis")
     .call(yAxisCall);
 		
-		
-					
-		
-d3.json("data.json"), function(data){
-    console.log(data);
-		
-	 // Clean data
+	
+d3.json("data.json", function(data){
+		console.log(data); 
+	  // Clean data
     const formattedData = data.map(function(year){
         return year["countries"].filter(function(country){
             var dataExists = (country.income && country.life_exp);
@@ -102,8 +93,9 @@ d3.json("data.json"), function(data){
             country.life_exp = +country.life_exp;
             return country;            
         })
-    });	
-// Run the code every 0.1 second
+    });
+
+    // Run the code every 0.1 second
     d3.interval(function(){
         // At the end of our data, loop back
         time = (time < 214) ? time+1 : 0
@@ -111,19 +103,20 @@ d3.json("data.json"), function(data){
     }, 100);
 
     // First run of the visualization
-    update(formattedData[0]);
-}
-			  
-function update(data) {
+    update(formattedData[0]);	
+		
+		})
+		function update(data) {
     // Standard transition time for the visualization
     var t = d3.transition()
         .duration(100);
- // JOIN new data with old elements.
-    var circles = svg.selectAll("circle").data(data, function(d){
+
+    // JOIN new data with old elements.
+    var circles = g.selectAll("circle").data(data, function(d){
         return d.country;
     });
-	
-// EXIT old elements not present in new data.
+
+    // EXIT old elements not present in new data.
     circles.exit()
         .attr("class", "exit")
         .remove();
@@ -142,9 +135,9 @@ function update(data) {
     // Update the time label
     timeLabel.text(+(time + 1800))
 }
-	
+		
 	</script>
-
-
-</body>
-
+	
+	</body>
+	</html>
+		
