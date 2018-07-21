@@ -119,7 +119,7 @@ function update(data) {
     var t = d3.transition()
         .duration(100);
  // JOIN new data with old elements.
-    var circles = g.selectAll("circle").data(data, function(d){
+    var circles = svg.selectAll("circle").data(data, function(d){
         return d.country;
     });
 	
