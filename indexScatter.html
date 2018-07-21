@@ -5,36 +5,16 @@
 
 
 <head>
-
-	<title>D3 tutorial</title>
-
+	<title>DS Assignment</title>
 	<script src="https://d3js.org/d3.v4.min.js"></script>
-
 	<script src="https://d3js.org/d3-scale.v2.min.js"></script>
 
-	
-
-	
-
-
-
-
-
 </head>
-
-
-
 <body> 
-
-
 
 	<script>
 
-		
-
 		var margin = {left:100 , right:100 , top:10 , bottom:10};
-
-		
 
 		var width = 600 - margin.left - margin.right
 
@@ -134,7 +114,7 @@
 
 			.attr("text-anchor", "middle")
 
-			.text("The worlds tallest buildings");
+			.text("The worlds tallest buildings in one place");
 
 					
 
@@ -164,7 +144,7 @@
 
 				.attr("x",function(d,i) {return xband(d.name);})
 
-				.attr("fill","red") });
+				.attr("fill","blue") });
 
 		
 
