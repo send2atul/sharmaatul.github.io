@@ -27,12 +27,10 @@
 		
 		
 		var v = d3.scaleLinear()
-				 .domain([0,d3.max(data, function(d){return d.sum})])
 				 .range([height,0])
 				 
 		
 		var xband = d3.scaleBand()
-				 .domain(data.map(function(d){return d.cand_nm;}))
 				 .range([0,400])
 				 .paddingInner(0.3)
 				 .paddingOuter(0.3);
@@ -52,28 +50,7 @@
 					.attr("transform","translate("+ margin.left +", " + margin.top +") ");
 					
 		
-		var xAxiscall = d3.axisBottom(xband);
-		svg.append("g")
-			.attr("class", "x-axis")
-			.attr("transform","translate(0,380)")
-			.call(xAxiscall)
-			.selectAll("text")
-			.attr("y",10)
-			.attr("x",-5)
-			.attr("text-anchor","end")
-			.attr("transform","rotate(-40)")
-			
-		svg.append("text")
-			.attr("class", "x axis-label")
-			.attr("x", width/2)
-			.attr("y", height + 140)
-			.attr("text-anchor", "middle")
-			.text("Donation Amount for Each Candidate");
-					
-		var yAxiscall = d3.axisLeft(v);
-		svg.append("g")
-			.attr("class", "y-axis")
-			.call(yAxiscall);
+		
 			
 			
 		// adding legends
@@ -113,10 +90,41 @@
 			
 // interval 
 			
-	d3.interval(function() { console.log("hello world"); },1000);
+	d3.interval(function() { 
+		update(data)
+		 },1000);
 		  });
 		
-		
+function update(data) 
+{
+	 v.domain([0,d3.max(data, function(d){return d.sum})]);
+	xband.domain(data.map(function(d){return d.cand_nm;}));
+	
+	
+	var xAxiscall = d3.axisBottom(xband);
+		svg.append("g")
+			.attr("class", "x-axis")
+			.attr("transform","translate(0,380)")
+			.call(xAxiscall)
+			.selectAll("text")
+			.attr("y",10)
+			.attr("x",-5)
+			.attr("text-anchor","end")
+			.attr("transform","rotate(-40)")
+			
+		svg.append("text")
+			.attr("class", "x axis-label")
+			.attr("x", width/2)
+			.attr("y", height + 140)
+			.attr("text-anchor", "middle")
+			.text("Donation Amount for Each Candidate");
+					
+		var yAxiscall = d3.axisLeft(v);
+		svg.append("g")
+			.attr("class", "y-axis")
+			.call(yAxiscall);	
+	
+}
 	
 	</script>
 
