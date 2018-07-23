@@ -116,6 +116,7 @@
 		var yAxiscall = d3.axisLeft(v);
 		svg.append("g")
 			.attr("class", "y-axis")
+			.tickFormat(function(d) { return "$" +d;})
 			.call(yAxiscall);	
 	
 }
