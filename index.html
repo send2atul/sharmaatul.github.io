@@ -90,13 +90,7 @@
     .text("Click for Summary");
 			
 // interval 
-			
-	d3.interval(function() { 
-		update(data)
-		 },1000);
-		  });
-		
-function update(data) 
+			function update(data) 
 {
 	 
 	xband.domain(data.map(function(d){return d.cand_nm;}));
@@ -126,6 +120,14 @@ function update(data)
 			.call(yAxiscall);	
 	
 }
+			
+			
+	d3.interval(function() { 
+		update(data)
+		 },1000);
+		  });
+		
+
 	
 	</script>
 
