@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.axis text {
+  font: 10px sans-serif;
+}
+
+.axis line,
+.axis path {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+div.tooltip {
+  position: absolute;	
+  text-align: center;	
+  width: 80px;	
+  height: 28px;		
+  padding: 2px;	
+  font: 12px sans-serif;	
+  background: lightsteelblue;	
+  border: 0px;					
+  border-radius: 8px;
+ }
+
+</style>
+<head>
+<title>Final Project-DonationsByOccupation </title>
+
+
+</head>
+<body>
+<script src="//d3js.org/d3.v4.min.js"></script>
+<script>
+
+// Define 'div' for tooltips
+var div = d3.select("body")
+	.append("div")  // declare the tooltip div 
+	.attr("class", "tooltip")              // apply the 'tooltip' class
+	.style("opacity", 0);                  // set the opacity to nil
+
+
+var dispatch = d3.dispatch("load", "CandidateChange");
+
+var groups = [
+  "RETIRED","ATTORNEY","HOMEMAKER","PHYSICIAN","LAWYER","PROFESSOR","NOT EMPLOYED"
+];
+
+	
+
+d3.csv("OccupationByCandidate.csv", type, function(error, states) {
+  if (error) throw error;
+  var CandidateByID = d3.map();
+  states.forEach(function(d) { CandidateByID.set(d.id, d); });
+  dispatch.call("load", this, CandidateByID);
+  dispatch.call("CandidateChange", this, CandidateByID.get("Obama, Barack"));
+});
+
+dispatch.on("load.menu", function(CandidateByID) {
+  var select = d3.select("body")
+    .append("div")
+    .append("select")
+      .on("change", function() { dispatch.call("CandidateChange", this, CandidateByID.get(this.value)); });
+
+  select.selectAll("option")
+      .data(CandidateByID.values())
+    .enter().append("option")
+      .attr("value", function(d) { return d.id; })
+      .text(function(d) { return d.id; });
+
+  dispatch.on("CandidateChange.menu", function(state) {
+    select.property("value", state.id);
+  });
+});
+
+// A bar chart to show total population; uses the "bar" namespace.
+dispatch.on("load.bar", function(CandidateByID) {
+  var margin = {top: 20, right: 20, bottom: 30, left: 40},
+      width = 80 - margin.left - margin.right,
+      height = 460 - margin.top - margin.bottom;
+
+  var y = d3.scaleLinear()
+      .domain([0, d3.max(CandidateByID.values(), function(d) { return d.total; })])
+      .rangeRound([height, 0])
+      .nice();
+
+  var yAxis = d3.axisLeft(y)
+      .tickFormat(d3.format(".3s"));
+
+  var svg = d3.select("body").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis);
+
+  var rect = svg.append("rect")
+      .attr("x", 4)
+      .attr("width", width - 4)
+      .attr("y", height)
+      .attr("height", 0)
+      .style("fill", "black");
+
+	  
+
+	  
+	  
+  dispatch.on("CandidateChange.bar", function(d) {
+    rect.transition()
+        .attr("y", y(d.total))
+        .attr("height", y(0) - y(d.total));
+  });
+});
+
+// A pie chart to show donation distribution by occupation group; 
+dispatch.on("load.pie", function(CandidateByID) {
+  var width = 880,
+      height = 460,
+      radius = Math.min(width, height) / 2;
+
+  var color = d3.scaleOrdinal()
+      .domain(groups)
+      .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+
+  var arc = d3.arc()
+      .outerRadius(radius - 10)
+      .innerRadius(radius - 70);
+
+  var pie = d3.pie()
+      .sort(null);
+
+  var svg = d3.select("body").append("svg")
+      .attr("width", width)
+      .attr("height", height)
+    .append("g")
+      .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+	  
+	  var legend = svg.append("g")
+					.attr("transform", "translate(" + (50) + ", " + (-40) + ")");
+
+	groups.forEach(function(occupation,i){
+			var legendrow = legend.append("g")
+								.attr("transform", "translate(0, " + (i*20) +")");
+								
+			legendrow.append("rect")
+					.attr("width",10)
+					.attr("height",10)
+					.attr("fill",color(occupation));
+					
+			legendrow.append("text")
+					.attr("x",-10)
+					.attr("y", 10)
+					.attr("text-anchor", "end")
+					.style("text-transform","capitalize")
+					.text(occupation);
+					
+					});
+
+
+					
+					
+  var path = svg.selectAll("path")
+      .data(groups)
+    .enter().append("path")
+      .style("fill", color)
+	  .on("mouseover", function(d) {		
+            div.transition()
+				.duration(1000)	
+				.style("opacity", 0);
+			div.transition()
+				.duration(200)	
+				.style("opacity", .9)
+				div.html(
+				d.data+ 
+				"<br/>"+
+				d.value
+				// closing </a> tag
+				)	 
+				.style("left", (d3.event.pageX) + "px")			 
+				.style("top", (d3.event.pageY - 28) + "px");})
+						  
+      .each(function() { this._current = {startAngle: 0, endAngle: 0}; });
+	  
+
+  dispatch.on("CandidateChange.pie", function(d) {
+    path.data(pie.value(function(g) { return d[g]; })(groups)).transition()
+        .attrTween("d", function(d) {
+          var interpolate = d3.interpolate(this._current, d);
+          this._current = interpolate(0);
+          return function(t) {
+            return arc(interpolate(t));
+          };
+        });
+  });
+});
+
+
+function type(d) {
+  d.total = d3.sum(groups, function(k) { return d[k] = +d[k]; });
+  return d;
+}
+
+
+</script>	
