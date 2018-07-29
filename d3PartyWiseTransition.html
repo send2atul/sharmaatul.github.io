@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style> /* set the CSS */
+
+body { font: 12px Arial;}
+
+path { 
+	stroke: steelblue;
+	stroke-width: 2;
+	fill: none;
+}
+
+.axis path,
+.axis line {
+	fill: none;
+	stroke: grey;
+	stroke-width: 1;
+	shape-rendering: crispEdges;
+}
+
+div.tooltip {
+  position: absolute;	
+  text-align: center;	
+  width: 60px;	
+  height: 37px;		
+  padding: 2px;	
+  font: 12px sans-serif;	
+  background: lightsteelblue;	
+  border: 0px;					
+  border-radius: 8px;
+ }
+
+</style>
+<head>
+<title>DS Final Project</title>    
+<script src="https://d3js.org/d3.v4.min.js"></script>  
+    <script src="https://d3js.org/d3-scale.v2.min.js"></script>
+</head>
+
+<body>
+    <script>
+
+	// Define 'div' for tooltips
+var div = d3.select("body")
+	.append("div")  // declare the tooltip div 
+	.attr("class", "tooltip")              // apply the 'tooltip' class
+	.style("opacity", 0);                  // set the opacity to nil
+
+	
+     var margin = { left:80, right:100, top:50, bottom:30 };
+
+var width = 600 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
+
+var flag = true;
+
+var t = d3.transition().duration(750);
+    
+var g = d3.select("body")
+    .append("svg")
+        .attr("width", width + margin.left + margin.right +150)
+        .attr("height", height + margin.top + margin.bottom+40)
+    .append("g")
+        .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
+
+var xAxisGroup = g.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height +")");
+        
+
+var yAxisGroup = g.append("g")
+    .attr("class", "y axis");
+
+// X Scale
+var x = d3.scaleBand()
+    .range([0, width])
+    .padding(0.2);
+
+// Y Scale
+var y = d3.scaleLinear()
+    .range([height, 0]);
+
+var colorscale = d3.scaleOrdinal(d3.schemeCategory10);		
+	
+// X Label
+g.append("text")
+    .attr("y", 380 )
+    .attr("x", width / 2)
+    .attr("font-size", "20px")
+    .attr("text-anchor", "middle")
+    .text("Donations Made To Parties in Election 2012")
+	.attr("fill","gray");
+    
+
+// Y Label
+var yLabel = g.append("text")
+    .attr("y", -60)
+    .attr("x", -(height / 2))
+    .attr("font-size", "20px")
+    .attr("text-anchor", "middle")
+    .attr("transform", "rotate(-90)")
+   
+   
+  var circle = g.append("ellipse")
+                          .attr("cx", 550)
+                          .attr("cy", 200)
+                         .attr("rx", 100)
+                         .attr("ry", 30)
+						 .attr("fill","yellow");
+							 
+						 g.append("text")
+						 .attr("x", 550)
+						.attr("y", 200)
+						.attr("text-anchor", "middle")
+						.text("Y-label:Toggles between Sum/Count")
+						.attr("fill","blue");
+						 
+					  
+					g.append("line")
+                       .attr("x1", 5)
+                          .attr("y1", 200)
+                         .attr("x2", 450)
+                         .attr("y2", 200)
+                         .attr("stroke-width", 5)
+						 .style("stroke-dasharray", ("5, 5"))
+                         .attr("stroke", "black");
+			
+
+d3.csv("PartyWiseDetail.csv", function(data){
+     console.log(data);
+    // Clean data
+    data.forEach(function(d) {
+        d.sum = +d.sum;
+        d.count = +d.count;
+    });
+ 
+    d3.interval(function(){
+        var newData = flag ? data : data.slice(0);
+
+        update(newData)
+        flag = !flag
+    }, 1500);
+
+    // Run the vis for the first time
+    update(data);
+});
+
+function update(data) {
+    var value = flag ? "sum" : "count";
+
+    x.domain(data.map(function(d){ return d.Party }));
+    y.domain([0, d3.max(data, function(d) { return d[value] })]);
+    // X Axis
+    var xAxisCall = d3.axisBottom(x);
+        
+                     
+    xAxisGroup.transition(t).call(xAxisCall).selectAll("text")
+			.attr("y",10)
+			.attr("x",-5)
+			.attr("text-anchor","end")
+			.attr("transform","rotate(-40)");
+        
+    
+
+    // Y Axis
+    var yAxisCall = d3.axisLeft(y)
+        .tickFormat(d3.format(".3s"));
+        yAxisGroup.transition(t).call(yAxisCall);
+
+  // JOIN new data with old elements.
+    var rects = g.selectAll("rect")
+        .data(data);
+
+   
+
+    // UPDATE old elements present in new data.
+    rects
+        .attr("y", function(d){ return y(d[value]); })
+        .attr("x", function(d){ return x(d.Party) })
+        .attr("height", function(d){ return height - y(d[value]); })
+        .attr("width", x.bandwidth);
+		
+
+    // ENTER new elements present in new data.
+    rects.enter()
+        .append("rect")
+            .attr("y", function(d){ return y(d[value]); })
+            .attr("x", function(d){ return x(d.Party) })
+            .attr("height", function(d){ return height - y(d[value]); })
+            .attr("width", x.bandwidth)
+            .attr("fill", function(d){return colorscale(d.Party)})
+			.on("mouseover", function(d) {		
+            div.transition()
+				.duration(100)	
+				.style("opacity", 0);
+				
+			div.transition()
+				.duration(200)	
+				.style("opacity", .9)
+				div.html(
+				'<a href="http://localhost:8000/d3DetailsChart.html">' +
+				d.Party + "<br/>"  + d.sum                    
+				 +  "<br/>"  + d.count +"</a>"
+				)	 
+				.style("left", (d3.event.pageX) + "px")			 
+				.style("top", (d3.event.pageY - 28) + "px");});
+
+			
+			
+    var label = flag ? "sum" : "count";
+    yLabel.text(label);
+
+}
+
+          
+        
+    </script>
+    
+    
+</body>
+
+</html>
