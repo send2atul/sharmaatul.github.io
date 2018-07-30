@@ -112,7 +112,7 @@ var yLabel = g.append("text")
 						 .attr("x", 550)
 						.attr("y", 200)
 						.attr("text-anchor", "middle")
-						.text("Y-label:Toggles between Sum/Count")
+						.text("Y-label:Toggles b/w DonationAmt/Cnt")
 						.attr("fill","blue");
 						 
 					  
@@ -126,12 +126,12 @@ var yLabel = g.append("text")
                          .attr("stroke", "black");
 			
 
-d3.csv("PartyWiseDetail.csv", function(data){
+d3.csv("PartyDonation.csv", function(data){
      console.log(data);
     // Clean data
     data.forEach(function(d) {
-        d.sum = +d.sum;
-        d.count = +d.count;
+        d.DonationAmt = +d.DonationAmt;
+        d.DonationCnt = +d.DonationCnt;
     });
  
     d3.interval(function(){
@@ -146,7 +146,7 @@ d3.csv("PartyWiseDetail.csv", function(data){
 });
 
 function update(data) {
-    var value = flag ? "sum" : "count";
+    var value = flag ? "DonationAmt" : "DonationCnt";
 
     x.domain(data.map(function(d){ return d.Party }));
     y.domain([0, d3.max(data, function(d) { return d[value] })]);
@@ -198,16 +198,16 @@ function update(data) {
 				.duration(200)	
 				.style("opacity", .9)
 				div.html(
-				'<a href=""https://send2atul.github.io/sharmaatul.github.io//d3DetailsChart.html">' +
-				d.Party + "<br/>"  + d.sum                    
-				 +  "<br/>"  + d.count +"</a>"
+				'<a href="https://send2atul.github.io/sharmaatul.github.io/d3DetailsChart.html">' +
+				d.Party + "<br/>"  + d.DonationAmt                    
+				 +  "<br/>"  + d.DonationCnt +"</a>"
 				)	 
 				.style("left", (d3.event.pageX) + "px")			 
 				.style("top", (d3.event.pageY - 28) + "px");});
 
 			
 			
-    var label = flag ? "sum" : "count";
+    var label = flag ? "DonationAmt" : "DonationCnt";
     yLabel.text(label);
 
 }
