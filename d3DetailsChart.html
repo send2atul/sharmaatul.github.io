@@ -100,12 +100,12 @@ var yLabel = g.append("text")
     .attr("transform", "rotate(-90)")
     //.text("Revenue");
 
-d3.csv("CandidateDonorDetail.csv", function(data){
+d3.csv("CandidateDonorInfo.csv", function(data){
      console.log(data);
     // Clean data
     data.forEach(function(d) {
-        d.sum = +d.sum;
-        d.count = +d.count;
+        d.DonationAmt = +d.DonationAmt;
+        d.DonationCnt = +d.DonationCnt;
     });
  
     d3.interval(function(){
@@ -120,7 +120,7 @@ d3.csv("CandidateDonorDetail.csv", function(data){
 });
 
 function update(data) {
-    var value = flag ? "sum" : "count";
+    var value = flag ? "DonationAmt" : "DonationCnt";
 
     x.domain(data.map(function(d){ return d.cand_nm }));
     y.domain([0, d3.max(data, function(d) { return d[value] })]);
@@ -174,8 +174,8 @@ function update(data) {
 				
 				
 			div.html(
-				'<a href="https://send2atul.github.io/sharmaatul.github.io//d3DropDownWithLegend.html">' + 
-				d.sum +"<br/>" + d.count +
+				'<a href="https://send2atul.github.io/sharmaatul.github.io/d3DropDownWithLegend.html">' + 
+				d.DonationAmt +"<br/>" + d.DonationCnt +
 				"</a>"  )	 
 				.style("left", (d3.event.pageX) + "px")			 
 				.style("top", (d3.event.pageY - 28) + "px");})
@@ -193,7 +193,7 @@ function update(data) {
                 .attr("y", function(d){ return y(d[value]); })
                 .attr("height", function(d){ return height - y(d[value]); });
 
-    var label = flag ? "sum" : "count";
+    var label = flag ? "DonationAmt" : "DonationCnt";
     yLabel.text(label);
 
 }
